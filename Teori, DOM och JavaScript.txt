@@ -1,0 +1,1852 @@
+﻿Webbutveckling 2                               Henrik Bygren                                           Dom och JavaScript
+Momentet börjar med repetition av JavaScript från Webbutveckling 1 kursen. Om du behöver repetera mer Javascript finns det i planeringen för Webbutveckling 1.
+
+Detta ska vi behärska utöver det vi lärt oss i webbutveckling 1
+* skapa dokumentobjekt med JavaScript
+* anonyma funktionert
+* arrow-funktioner
+* loopa med forEach (och map)
+* JSON
+* asynkrona funktioner (promise) med await och async för att hantera fetch-request
+* ta emot och skriva ut (i konsol om så önskas) data från enkla externa API:er.
+* exportera och importera moduler
+
+
+Dokument Objekt Modellen
+I arbetet med JavaScript är det viktigt att förstå DOM.
+DOM i praktiken
+Ett html-dokument är uppbyggt av ett antal så kallade dokumentobjekt. Objekten kan beskrivas med en trädstruktur.
+  
+
+
+
+Förenklad html-kod som DOM-trädet ovan beskriver.
+
+<html>
+<head>
+        <title></title>
+</head>
+<body>
+        <h1></h1>
+        <table>
+                <tr>
+                  <td></td><td></td>
+                </tr>
+                <tr>
+                  <td></td><td></td>
+                </tr>
+        </table>
+</body>
+</html>
+	Programmera i JavaScript
+Variabler
+let
+Variabler i JavaScript deklareras med nyckelordet let. Det går att deklarera variabler utan nyckelordet let, men då blir dessa variabler globala. Detta bör undvikas!
+
+
+let x = 5;
+y = 3; // Bör undvikas!
+	
+
+
+Tidigare användes enbart var för att deklarera variabler. Nyckelordet skapade många problem och fel. let har andra egenskaper och fungerar mer naturligt.  
+	const
+Om variabelns värde inte kommer ändras efter tilldelning bör man använda nyckelordet const  i stället för let, vilket är vanligt i JavaScript.
+
+const x = 5;
+x = 3; // Fungerar inte, då variabelns värde inte får ändras.
+	
+
+Villkor, operatorer och loopar
+Villkor, operatorer och loopar fungerar på samma sätt som i php och java.
+
+
+
+if-satsen
+if(x == 5){
+        alert("x == " + x);
+}else{
+        alert("x != " + x);
+}
+	
+
+for-loopen
+for(let i = 0; i < 5; i++){
+        alert("i == " + i);
+}
+	
+while-loopen
+let i = 0;
+while(i < 5){
+        alert("i == " + i);
+  i++
+}
+	
+
+Jämförelse operatorerna == eller ===
+Om du använder === testar du även att båda sidor är av samma datatyp. 0 === ”0” är inte sant, men 0 == ”0” är sant.
+
+
+Utskrifter med JavaScript
+Utskrifter kan ske på en mängd olika sätt i JavaScript. Här går jag igenom några metoder.
+I konsolen
+Används ofta för att testa utan att webbsidan påverkas. För att se resultatet måste man i Chromium och Firefox högerklicka och välja Inspektera. Därefter välj Console.         
+  
+<script>
+  let sum = 4 + 3;
+        console.log("Summan = " + sum);
+</script>
+	
+
+Direkt i koden
+Om utskrift sker direkt i koden kan det se ut som följande.
+
+
+<script>
+        document.write("<p>Hello World!</p>");
+</script>
+	
+
+Utskriften sker där script-elementet är placerad.
+Meddelandefönster
+Här öppnas ett separat fönster som man sedan får ”klicka ner”.
+
+
+alert("Meddelandefönster");
+	
+
+Inuti ett element (läsa in och modifiera dokumentobjekt)
+Detta bygger på att man först läser in ett specifikt html-element (dokumentobjekt). 
+
+
+Med unik ID, document.getElementById
+Man kan skriva in eller över text i ett html-element med ett unikt id.
+Exempel 🛠️
+<body>
+   <h1>innerHTML</h1>
+   <p id="txtOne">Lite text ...</p>
+  
+   <script>
+       let element = document.getElementById("txtOne");
+       element.innerHTML = "JavaScript skriver ut!";
+   </script>
+</body>
+	
+
+Att jag placerat scripten sist i koden och inte i headern eller separat fil beror på att elementet  <p id="txtOne"> först måste läsas in i webbläsaren innan koden körs. Detta problem kommer vi lösa senare då vi placerar all JavaScript-kod i separata filer
+
+
+innerHTML 
+Denna egenskap tillåter även att man skriver in html-element. Det finns andra varianter som endast tillåter text. Oftast är dessa att föredra.
+<script>
+    let element = document.getElementById("txtOne");
+   element.innerText = "JavaScript skriver ut!";   // Version 1
+   element.textContent = "JavaScript skriver ut!"; // Version 2
+</script>
+	
+För element av viss typ (tag name), document.getElementsByTagName
+Lägg märke till plural s:et i metoden.
+Eftersom en tagg inte behöver förekomma ensam på sidan så lagras elementen alltid som en array. Även om det bara förekommer ett element av den valda taggen.
+.
+Exempel 🛠️
+<body>
+   <h1>innerHTML</h1>
+   <p>Lite text 1</p>
+   <p>Lite text 2</p>
+
+
+   <script>
+       let elementArray = document.getElementsByTagName("p");
+  
+       elementArray[0].innerText = "Första p-elementet";
+       elementArray[1].innerText = "Andra p-elementet";
+   </script>
+</body>
+	
+
+Andra alternativ, document.getElement…
+
+
+document.getElementsByClassName('x')
+	returnerar en array med alla element med klassnamnet x
+	document.querySelector('x')
+	returnerar det första objektet som matchar x. Där x kan vara ett taggnamn, klassnamn, id eller annat attribut.
+	document.getElementsByTagName('x')
+	returnerar en array med alla element med av taggen x. Där x kan vara, h1,p, section, div mm.
+	
+
+Skapa nytt element
+Det går att skapa helt nya html-element med JavaScript. Vi kommer titta på hur man lägger till ett nytt "barn-element" (child) till ett befintligt element (parent) i koden.
+Jag utgår från en numrerad lista, ol, med ett antal list-element, li. Tanken är att vi skall lägga till ett li-element sist i vår numrerad lista. JavaScript-koden ligger efter body i html-filen.
+Exempel 🛠️
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+</head>
+<body>
+
+
+<main>
+   <h2>Lägg till element</h2>
+   <ol id = "letterList">
+       <li>AAAA</li>
+       <li>BBBB</li>
+       <li>CCCC</li>
+       <li>DDDD</li>
+       <li>EEEE</li>
+   </ol>
+</main>
+
+
+</body>
+<script>
+   let parent = document.querySelector("ol");
+   let newChild = document.createElement("li");
+   let content = document.createTextNode("FFFF Nytt!"); // För att skapa text till LI
+
+
+   newChild.appendChild(content); // Lägger till texten ovan.
+   parent.appendChild(newChild);
+</script>
+</html>
+	
+
+Här använder jag document.querySelector("ol"). Detta är en metod som hämtar första förekomsten av ett visst element. På så sätt slipper jag använda ett ID eller alternativ läsa in ol som element i en array på position 0. 
+Här är "ol" parent till "li". Man säger hatt "li" är child till "ol". På samma sätt blir content ett child-element till "li".
+
+
+Senare i momentet (längre ner) kommer vi fördjupa oss i hur man skapar dokumentobjekt. Detta kan upplevas som lite "knöligt" i JavaScript. Det är något som många frontendramverk förenklat hur man skapar dokumentobjekt.
+
+
+Förändra stilmallen för ett element
+Det går att förändra stilmallen för olika html-element med hjälp av JavaScript.
+Exempel 🛠️
+
+<body>
+<h1>style</h1>
+<p id="texOne">Lite text 1</p>
+
+
+<script>
+document.getElementById("texOne").style.color = "Red";
+document.getElementById("texOne").style.background = "Green";
+document.getElementById("texOne").style.fontFamily = "Arial";
+
+document.getElementsByTagName("h1")[0].style.fontSize = "small" ; 
+</script>
+</body>
+	
+
+Om man i stilmallen skriver font-family blir detta oftast fontFamily i JavaScript.
+
+
+En enklare variant är att referera till elementet med en variabel.
+
+
+<body>
+<h1>style</h1>
+<p id="texOne">Lite text 1</p>
+
+
+<script>
+  let element = getElementById("texOne");
+element.style.color = "Red";
+element.style.background = "Green";
+element.style.fontFamily = "Arial";
+
+document.getElementsByTagName("h1")[0].style.fontSize = "small" ; 
+</script>
+</body>
+	
+
+Array
+I JavaScript fungerar detta på liknande sätt som i php.
+Deklarationen av en array kan göras på olika sätt.
+
+let arrayOne = new Array();         // Skapar tom array
+let arrayTwo = [];               // Skapar tom array
+let arrayThree = [1,2,3,4];         // Skapar och initierar en array med tal
+	
+
+Lägga till värden (sist) i en array. 
+
+arrayOne.push(1);
+arrayOne.push(2);
+arrayOne.push(3);
+	
+
+Utskrift av innehållet på en viss position i array:en.
+
+document.write(arrayOne[2]);
+	
+
+Metoden "document.getElementsByTagName" returnerar alltid en array av html-element. Detta är naturligt då ett visst element kan förekomma flera gånger på samma sida. Även om det i vissa fall endast finns ett element av en viss typ så returneras en array. Elementet ligger då naturligtvis på position 0 och arrayen får längden (length) 1.
+Exempel 🛠️
+Exempel med for-loop
+
+<script>
+   let arrayOne = ["hello", "-","world","!"];
+
+
+   for(let i = 0; i<arrayOne.length; i++){
+       document.write(arrayOne[i]);
+   }
+</script>
+	
+
+För er som gillar andvända foreach-alternativet så finns det även något liknande i JavaScript.
+
+
+<script>
+   let arrayOne = ["hello", "-","world","!"];
+
+
+   for(let item of arrayOne){
+        console.log(item);
+   }
+</script>
+	
+
+Exempel 🛠️
+Exempel med for-loop och document.getElementsByTagName. JS-koden byter endast text-färg på alla p-element på sidan.
+<body>
+   <h1>innerHTML</h1>
+   <p>Lite text 1</p>
+   <p>Lite text 2</p>
+   <p>Lite text 3</p>
+   <script>
+       let elementArray = document.getElementsByTagName("p");
+  
+       for(let i = 0; i<elementArray.length; i++){
+                elementArray[0].style.color = "Red";
+       }       
+   </script>
+</body>
+	
+
+Funktioner
+Vi tittar på funktioner i JavaScript för att kunna dra nytta av detta när vi går in på händelsehantering.
+En funktion består av kodavsnitt som exekveras när ett anrop av funktionen sker. Om man vill att funktionen ska returnera ett värde så använder man nyckelordet "return".
+
+
+
+
+<script>
+        function myFunction(){
+                 kod…
+                return ….; // Endast om funktionen skall returnera något.
+        }
+</script>
+	
+
+Anrop av funktionen sker genom att ange funktionens namn.
+<script>
+        myFunction();
+</script>        
+	
+Exempel 🛠️
+Jag börjar med att skapa en funktion, sum(x, y), som returnerar summan av de två tal som skickas till funktionen. Funktionen skapas i en separat fil.
+calc.js
+function sum(x, y){
+   let sum = x + y;
+   return sum;
+}
+	
+
+Html-filen läser in calc.js i head. I body så skriver vi in JavaScript direkt i koden. Koden anropar funktionen sum med talen 5 och 3. Resultatet tas emot av variabeln summa. Därefter skrivs resultatet ut på webbsidan.
+index.html
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+   <title>Kalk</title>
+   <script src="calc.js"></script> <!-- Läser in js-filen -->
+</head>
+<body>
+<h1>Kalkylator</h1>
+
+
+<script>
+   let summa = sum(3,5);
+   document.write("<p> summan = " + summa + "</p>");
+</script>
+
+
+</body>
+</html>
+	Händelsehantering och inläsning av data
+Alla dokumentobjekt (html-element) kan utlösa händelser som sedan startar ett JavaScript i form av ett funktionsanrop. Nedan beskrivs några vanliga händelser som kan utlösas. Fler finner man på http://www.w3schools.com/tags/ref_eventattributes.asp. 
+
+
+Attribut
+	Händelse
+	click
+	Musklick
+	dblclick
+	Dubbelklick med musen
+	keydown
+	En knapp trycks ned
+	keyup
+	En knapp släpps upp
+	submit
+	När ett formulär skall skickas
+	mouseover
+	Muspekaren går över objektet
+	mouseout
+	Muspekaren lämnar objektet
+	load
+	Objektet har laddats
+	
+
+För att skapa en händelselyssnare ska följande steg implementeras.
+* Skapa den funktion som skall anropas då händelsen utlöses.
+* Registrera så att rätt element känner av en viss händelse och anropar funktionen som skapades ovan.
+Problemet kommer bli att man inte kan registrera några händelser innan hela sidan är laddad. Om vi har javascripten i en separat fil så kommer den laddas före själva sidan med alla dokumentobjekt. 
+För att lösa detta kan man skapa en händelsehanterare som exekverar när sidan är laddad. I funktionen kopplad till load-händelsen placeras sedan övriga händelsehanterare. Nedan följer en mall för detta
+
+
+function init(){
+   // Registrera övriga händelser här
+   Objektet.addEventListener("händelse", funktionens_namn);
+}
+
+
+window.addEventListener("load",init); // Placeras längst ner i JavaScript-filen
+	
+
+En händelse registreras på följande sätt
+
+
+Objektet.addEventListener("händelse", funktionens_namn);
+	Praktiska exempel med händelsehantering
+Exempel 1 🛠️
+Vi skapar i detta exempel en sida där rubriken reagerar på ett ”klick” och byter innehåll.
+Först skapar vi html-sidan.
+
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+        <title>JavaScript</title>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="script/script.js"></script>        
+</head>
+<body>        
+        <h2 id="headOne">Klicka på rubriken</h2>        
+        <p>bla bla ...</p>
+</body>
+</html>
+	
+
+Därefter skapar vi JavaScript-filen med namnet script.js och ligger i underkatalogen script.
+
+
+/**
+ * Anropas efter att sidan laddats klart. Se längst ner!
+ */
+function init(){
+   let element = document.getElementById('headOne');
+   element.addEventListener("click",changeTxt);
+}
+
+
+/**
+ * Anropas då man klickar på elementet med id = headOne
+ */
+function changeTxt(e){
+   document.getElementById("headOne").innerHTML = "Nytt innehåll";
+
+
+   // Alternativ lösning. Bra om flera element delar samma funktion.
+   e.target.innerHTML = "Nytt innehåll";
+}
+
+
+/**
+ * Skapar en händelselyssnare till sidan som skall anropa init()-
+ * funktionen ovan. Triggas när sidan laddat klart "load"
+ */
+window.addEventListener("load",init);
+	
+
+Exempel 2 🛠️
+I detta exempel skapar vi ett formulär där ett värde kan matas in. När man klickar på knappen skall kvadraten på det inmatade talet beräknas och skrivas ut i ett div-element.
+  
+
+Html-sidan
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+        <title>JavaScript</title>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="script/script.js"></script>        
+</head>
+<body>        
+        <form>
+                <input type="text" size="10" id="digit" value="10">
+             <button type="button" id="calc">Kvadrera</button>
+        </form>
+        <div id="result"></div>
+</body>
+</html>
+	
+
+I javascriptet skall vi hämta värdet från input-rutan. Detta gör man med
+
+document.getElementById('digit').value
+	
+
+Därefter skall värdet lagras i variabeln number. Eftersom allt som läses in tolkas som text måste vi omvandla till heltal. Detta gör vi med funktionen
+
+parseInt();
+	
+
+Hela inläsningen ser då ut som nedan
+
+let number = parseInt(document.getElementById('digit').value);
+	
+
+Vår JavaScript-fil i sin helhet.
+
+/**
+* Anropas efter att sidan laddats klart. Se längst ner!
+*/
+function init(){
+   let element = document.getElementById('calc');
+   element.addEventListener("click",calculate);
+}
+
+
+/**
+* Anropas då man klickar på knapp med id = calc
+*/
+function calculate(e){
+   let number = parseInt(document.getElementById('digit').value);
+   number *= number;
+
+
+   document.getElementById('result').innerHTML = number;
+}
+
+
+/**
+* Skapar en händelselyssnare till sidan som skall anropa init()-
+* funktionen ovan. Lyssnar när sidan laddat klart "load"
+*/
+window.addEventListener("load",init);
+	
+
+Exempel 3 🛠️
+Detta enkla exempel visar hur man kan kontrollera ett inmatningsfält i ett formulär. Om fältet är felaktigt ifyllt så skickas inte formulärdatan. Samtidigt skall bakgrunden på fältet färgas rött och en meddelanderuta visas (alert). Vi kommer bara kontrollera om fältet för e-post innehåller ett @ eller inte.
+  
+                   
+Html-sidan
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+        <title>JavaScript</title>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="script/script.js"></script>        
+</head>
+<body>        
+        <form id="myForm" method = "get" action="nySida.php">
+                <label>E-post: </label>
+                <input type="text" size="10" id="mail">
+             <button type="submit">Skicka</button>
+        </form>
+        <div id="result"></div>
+</body>
+</html>
+	
+
+För att slippa fel kan man skapa sidan nySida.php
+
+
+<?php
+   header('Content-type: text/plain; charset=utf-8');
+   echo "Din e-post: " . $_GET["mail"];
+?>
+	
+
+I vår JavaScript-fil får vi nu utnyttja inparametern e till vår funktion. Börjar nu plocka bort kommentarer som nu känns överflödiga.
+JavaScript-filen i sin helhet
+function init(){
+   let element = document.getElementById('myForm');
+   element.addEventListener("submit",evaluate);
+}
+
+
+/**
+* Anropas då formuläret (id = myForm) skall skickas.
+* Om textfältet med id=mail inte innhåller @ så stannar
+* Man kvar på sidan och text-fältet får röd bakgrundsfärg.
+*/
+function evaluate(e){
+   let text = document.getElementById('mail').value;
+
+
+   // indexOf() returnerar -1 om texten inte finns
+   if(text.indexOf("@") == -1){
+       alert("Felaktig e-post!");
+       e.preventDefault(); // Ser till att vi stannar kvar på sidan
+
+
+       // Färgar bakgrunden röd
+       document.getElementById('mail').style.background = "red";
+   }
+}
+
+
+window.addEventListener("load",init);
+	
+
+Om man vill testa om ett fält är tomt kan man skriva i funktionen evaluate()
+
+
+if(text.trim().length === 0)
+	
+
+Exempel 4 🛠️        
+Koppla flera element till samma händelsehanterare.
+Om man klickar på ett av styckena skall texten i det stycket visas i div-elementet och inuti ett h1-h4 element.
+Html-filen.
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+        <title>JavaScript</title>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="script/script.js"></script>        
+</head>
+<body>        
+        <p id = "p1">Text 1</p>
+        <p id = "p2">Text 2</p>
+        <p id = "p3">Text 3</p>
+        <p id = "p4">Text 4</p>
+        
+        <div id="display"></div>
+</body>
+</html>
+	
+
+JavaScriptfilen utnyttjar lite stränghantering för att klara uppgiften. Funktionen init() skulle kunna göras bättre.
+JavaScript-filen
+function init(){
+  document.getElementById('p1').addEventListener("click",display);
+  document.getElementById('p2').addEventListener("click",display);
+  document.getElementById('p3').addEventListener("click",display);
+  document.getElementById('p4').addEventListener("click",display);
+}
+
+
+/**
+* Anropas då man klickar på p-element med id = p1-4
+*/
+function display(e){
+   let txtToDisplay = e.currentTarget.innerHTML; 
+   let nr = parseInt(e.target.id.substring(1, 2));
+
+
+   document.getElementById('display').innerHTML = "<h"+nr+">" + txtToDisplay + "</h"+nr+">";
+}
+
+
+window.addEventListener("load",init);
+	
+
+
+
+Exempel 5 🛠️
+Detta exempel visar en mycket enkel bildvisare. Här kommer vi bara använda en bild, eller rättare sagt två.  
+När man klickar på miniatyrbilden skall en större bild visas på sidan.
+
+* Döp en valfri bild till b1.png. Det går bra med jpg men ändra då namn till b1.jpg.
+* Skapa en miniatyr av b1.png och döp den till b1thumb.png
+* Spara bilderna i en underkatalog med namnet img.
+
+Html-filen
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+        <title>JavaScript</title>
+        <meta charset="UTF-8">
+        <script src="script/script.js"></script>        
+</head>
+<body>        
+        <h1>Bildvisare Enkel</h1>        
+        
+        <img id ="i1" src = "img/b1thumb.png" alt="Skidåkare!">
+        <div><img id = "imgView"></img></div>
+
+
+</body>
+</html>
+	
+
+JavaScript-filen
+   let imageNormal = new Image();
+
+
+    imageNormal.src = "img/b1.png"
+     
+    function init(){
+        let element = document.getElementById('i1');
+        element.addEventListener("click",changeImg);
+    }
+    
+    /**
+     * Anropas då man klickar på elementet med id = i1
+     */
+    function changeImg(e){
+        document.getElementById("imgView").src = imageNormal.src;
+    }
+    
+    window.addEventListener("load",init);
+	
+
+
+
+Exempel 6A 🛠️
+I detta exempel visar jag hur man kan expandera och minimera ett textavsnitt på liknande sätt som tidningen Omni.se. När man öppnar sidan är artiklarna (article) klippta i höjdled, i mitt exempel 100px. När man klickar i översta artikeln expanderas den så att hela texten visas. När man klickar en andra gång så minimeras artikeln igen.
+Detta gör vi enklast genom att ändra stilmallen för article med id='a_1' och dess 
+height= 100px/auto.
+Vi gör detta endast i första artikeln. I exempel 6B så visas hur detta fungerar för alla artiklar.
+
+
+Html-filen
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+   <title>News-feed</title>
+   <meta charset="UTF-8">
+   <script src="js/script.js"></script>
+</head>
+<body>
+<main>
+   <h1>Mer eller mindre text</h1>
+
+
+   <article id="a_1" style ="border: 1px solid black; height: 100px; overflow: hidden; width: 650px; margin:5px;">
+       <h3 style="margin: 0">Lorem ipsum</h3>
+       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras et luctus augue. Mauris facilisis dui non velit aliquet pretium. Aliquam ornare enim eget libero fringilla consectetur. In hac habitasse platea dictumst. Morbi nibh orci, condimentum in nibh id, tincidunt imperdiet metus. </p>
+       <p>Suspendisse vulputate vitae erat dapibus posuere. Mauris facilisis dui non velit aliquet pretium. Aliquam ornare enim eget libero fringilla consectetur.</p>
+   </article>
+
+
+   <article style ="border: 1px solid black; height: 100px; overflow: hidden; width: 650px; margin:5px;">
+       <h3 style="margin: 0">Suspendisse vulputate</h3>
+       <p>Suspendisse vulputate vitae erat dapibus posuere. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras et luctus augue. Mauris facilisis dui non velit aliquet pretium. Aliquam ornare enim eget libero fringilla consectetur. In hac habitasse platea dictumst. Morbi nibh orci, condimentum in nibh id, tincidunt imperdiet metus. </p>
+       <p>Suspendisse vulputate vitae erat dapibus posuere. Mauris facilisis dui non velit aliquet pretium. Aliquam ornare enim eget libero fringilla consectetur.</p>
+   </article>
+
+
+   <article style ="border: 1px solid black; height: 100px; overflow: hidden; width: 650px; margin:5px;">
+       <h3 style="margin: 0">Mauris facilisis</h3>
+       <p>Mauris facilisis dui non velit aliquet pretium. Suspendisse vulputate vitae erat dapibus posuere. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras et luctus augue. Mauris facilisis dui non velit aliquet pretium. Aliquam ornare enim eget libero fringilla consectetur. In hac habitasse platea dictumst. Morbi nibh orci, condimentum in nibh id, tincidunt imperdiet metus. </p>
+       <p>Suspendisse vulputate vitae erat dapibus posuere. Mauris facilisis dui non velit aliquet pretium. Aliquam ornare enim eget libero fringilla consectetur.</p>
+   </article>
+
+
+
+
+</main>
+</body>
+</html>
+	
+
+JavaScript-filen
+function init(){
+   let element= document.getElementById('a_1');
+   element.addEventListener("click",expandCollapse)
+}
+
+
+function expandCollapse(e){
+    /**
+     * curretTarget ger det elment som är kopplad till händelselyssnaren
+     * target som används tidigare är det element som vi faktiskt  
+     * klickade på.
+     * Prova genom att byta currentTarget till target
+     */
+    let article = e.currentTarget; 
+    
+    if(article.style.height  == '100px'){
+        article.style.height = 'auto';
+    }else{
+        article.style.height = '100px';
+    }
+}
+    
+window.addEventListener("load",init);
+	Exempel 6B 🛠️
+Nu skall samtliga artiklar skall ha samma egenskaper. Det är då ohållbart att utnyttja id för varje artikel. I stället läser vi in alla article i en array och tilldelar dessa samma händelse.
+Vi behöver då endast göra förändring i funktionen init.
+
+
+function init(){
+    // .getElementsByTagName läser alltid in i en array.
+    let elementArray = document.getElementsByTagName('article');
+    
+    // Går igenom alla element i elemetArray och tildelar samma händelse-
+    // lyssnare.
+    for(let i = 0; i < elementArray.length; i++){
+        elementArray[i].addEventListener("click",expandCollapse)
+    }
+}
+	Exempel 6C 🛠️
+I nuläget står css-egenskaperna för våra article-element i tagarna, vilket känns fel då alla har samma egenskap. Om vi istället flyttar detta till en separat fil får vi ett mindre problem med koden. Testa detta! Ni kommer upptäcka att ni måste klicka 2 ggr innan artikeln expanderas 1:a gången. Detta beror på att section.style. inte returnerar css-reglerna som står i separat fil.
+För att lösa detta gör vi en mindre förändring i expandCollapse-funktionen.
+
+
+function expandCollapse(e){
+   /**
+    * curretTarget ger det element som är kopplad till händelselyssnaren
+    * target som använts tidigare är det element som vi faktiskt 
+    * klickade på.
+    * Prova genom att byta currentTarget till target
+    */
+   let article = e.currentTarget; 
+   
+   // Tar reda på css-reglerna för elementet
+   let elementStyle = getComputedStyle(article); 
+
+
+   if(elementStyle.height  == '100px'){
+       article.style.height = 'auto';
+   }else{
+       article.style.height = '100px';
+   }
+}
+	Skapa html-element dynamiskt med JavaScript
+Titeln skulle även kunnat heta "Skapa dokumentobjekt dynamiskt med JavaScript". Detta skulle tydligare visa kopplingen till DOM.
+Dynamisk innebär att html-elementen skapas när JavaScripten körs. Det vill säga sidan uppdateras med nytt innehåll och då även med nya html-element (dokumentobjekt).
+Praktiska exempel med DOM och JavaScript
+Vi lär oss detta genom att titta på några exempel
+Exempel 1 🛠️
+Vi skall skapa 3 nya p-element i main. Nedan visas sidan i en DOM-vy.
+
+  
+
+Här kommer main vara förälder (parent), till de 3 p-elementen som då blir dess barn (child). Vi kommer lägga 2 p-element i slute av main och ett i början av main.
+
+
+Nedan beskrivs det vi skall göra i pseudokod
+   1. Läs in main-elementet i "parent"
+   2. Skapa 3 p-element (document.createElement) 
+   3. Skapa och lägga till innehåll i p-elementen (innerText, textContent eller createTextNode)
+   4. Lägg till p-elementen under main, parent (appendChild, prepend)
+
+
+html 🛠️
+Det gråa markerar vad som skall läggas till och var.
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+   <title>DOM</title>
+   <script src="createDOM.js"></script>
+</head>
+<body>
+   <header>
+       <h1>Dynamisk DOM med JavaScript</h1>
+   </header>
+  
+   <main>
+       <p>Lisa</p> 
+       <h1>DOM med JavaScript</h1>
+       <p>Henrik</p>
+       <p>Bygren</p> 
+   </main>
+  
+   <footer>
+   </footer>
+   </body>
+</html>
+	
+
+createDOM.js 🛠️
+
+function init(){
+   createDOM();
+}
+
+
+function createDOM(){
+   let parent = document.querySelector('main');
+
+
+   // Skapar dynamiskt 3 p-element
+   let p1 = document.createElement("p");
+   let p2 = document.createElement("p");
+   let p3 = document.createElement("p");
+
+
+   // v1 innehåll
+   p1.innerText = 'Henrik';
+
+
+   //v2 innehåll
+   p2.textContent = 'Bygren';
+  
+   //v3 innehåll
+   let txtNode = document.createTextNode('Lisa');
+   p3.appendChild(txtNode);
+
+
+   // Lägger till p-elementen i main
+   parent.appendChild(p1); // sist
+   parent.appendChild(p2); // sist
+   parent.prepend(p3);     // först
+}
+
+
+window.addEventListener('load', init);
+	
+
+Exempel 2 🛠️
+Här skall vi skapa en tabell i main med 2 rader och 3 kolumner. Tabellen skall se ut som nedan.
+  
+
+Om vi enbart tittar på DOM från main.
+
+  
+
+Här får vi först skapa en table som ett barn till main. table kommer vara förälder till två barn, tr. tr i sin tur kommer ha 3 barn vardera, td.
+Kortfattat kommer vi göra följande
+   1. Skapa ett nytt element table.
+   2. Skapa ett nytt element tr
+   3. skapa 3 nya element td.
+   4. lägg till de 3 td till tr.
+   5. lägg till tr till table
+   6. gör pkt 2-5 en gång till
+   7. lägg till table till main.
+html
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+   <title>Tabell med JS</title>
+   <script src="createTabel.js"></script>
+   <style>
+       table{
+           border-collapse: collapse;
+       }
+       td{
+           border:1px solid black;
+       }
+   </style>
+</head>
+<body>
+
+
+<main>
+   <h1>Tabell med JavaScript</h1>
+
+
+</main>
+
+
+</body>
+</html>
+	
+
+createTabel.js version 1
+Bättre version följer...
+function init(){
+   createTbl();
+}
+
+
+function createTbl(){
+   let main = document.querySelector('main');
+
+
+   let table = document.createElement('table');
+
+
+   // Rad 1
+   let tr = document.createElement('tr');
+
+
+   let td1 = document.createElement('td');
+   td1.textContent = 'A';
+
+
+   let td2 = document.createElement('td');
+   td2.textContent = 'B';
+
+
+   let td3 = document.createElement('td');
+   td3.textContent = 'C';
+
+
+   tr.appendChild(td1);
+   tr.appendChild(td2);
+   tr.appendChild(td3);
+
+
+   table.appendChild(tr);
+
+
+   // Rad 2
+   tr = document.createElement('tr');
+
+
+   td1 = document.createElement('td');
+   td1.textContent = 'D';
+
+
+   td2 = document.createElement('td');
+   td2.textContent = 'E';
+
+
+   td3 = document.createElement('td');
+   td3.textContent = 'F';
+
+
+   tr.appendChild(td1);
+   tr.appendChild(td2);
+   tr.appendChild(td3);
+
+
+   table.appendChild(tr);
+
+
+   // table till main
+   main.appendChild(table);
+
+
+}
+
+
+window.addEventListener('load', init);
+	
+
+createTabel.js version 2
+Bättre version!!!
+function init(){
+   createTbl();
+}
+
+
+function createTbl(){
+   let main = document.querySelector('main');
+   let table = document.createElement('table');
+
+
+   let content = ['A','B','C','D','E','F'];
+
+
+   let i = 0;
+
+
+   for(let row = 0; row < 2; row++ ){
+      let tr = document.createElement('tr');
+      for(let cell = 0; cell < 3; cell++){
+         let td = document.createElement('td');
+         td.innerText = content[i];
+
+
+         tr.appendChild(td);
+         i++;
+      }
+      table.appendChild(tr);
+   }
+
+
+   main.appendChild(table);
+}
+
+
+window.addEventListener('load', init);
+	
+
+________________
+Mer om funktioner i JavaScript
+Funktioner kan skapas på flera olika sätt i JavaScript. Nedan visas några exempel på funktioner som är identiska men kodade på olika sätt. Resultaten skrivs ut i konsolen och här av underordnad betydelse.
+
+// Traditionell funktion
+function add_1(t1, t2){
+  sum = t1 + t2;
+  return sum;
+}
+
+
+// Referens till anonym funktion
+let add_2 = function(t1, t2){
+  sum = t1 + t2;
+  return sum;
+}
+
+
+// Referens till arrow-funktion
+let add_3 = (t1, t2) => {
+  sum = t1 + t2;
+  return sum;
+}
+
+
+// Komprimerad variant om vi endast har en rad. Slipper {} och return.
+let add_4 = (t1, t2) => t1 + t2;
+
+
+let summa_1 = add_1(3, 4);
+let summa_2 = add_2(2, 3);
+let summa_3 = add_3(1, 1);
+let summa_4 = add_4(4, 5);
+
+
+console.log(summa_1 + ", " + summa_2 + ", " + summa_3 + ", " + summa_4);
+	
+
+
+
+En och samma funktion kan skrivas på följande sätt som ett praktiskt exempel.
+script.js
+function init(){
+  document.getElementById("p1").addEventListener("click", clickP1);
+  document.getElementById("p2").addEventListener("click", clickP2);
+  document.getElementById("p3").addEventListener("click", clickP3);
+
+
+  /** NY! Vanligast bland JS-programmerare. Här skapas en "anonym" 
+      funktion  */
+  document.getElementById("p4").addEventListener("click", function(e) =>   
+  {
+     e.currentTarget.innerText = "Test 4";
+  });
+  
+  /** NY! Vanligast bland JS-programmerare. Här skapas en "anonym" s.k    
+      arrow-funktion  */
+  document.getElementById("p5").addEventListener("click", (e) => {
+     e.currentTarget.innerText = "Test 5";
+  });
+}
+
+
+/** Så här har vi skapat funktioner fram tills nu  */
+function clickP1(e){
+  e.currentTarget.innerText = "Test 1";
+}
+
+
+/** NY! En variabel tilldelas en funktion  */
+let clickP2 = function(e){
+  e.currentTarget.innerText = "Test 2";
+}
+
+
+/** NY! En variabel tilldelas en s.k arrow-funktion */
+let clickP3 = (e) => {
+  e.currentTarget.innerText = "Test 3";
+}
+
+
+window.addEventListener("load", init);
+	
+
+test.html
+<!DOCTYPE html>
+<html lang="sv">
+
+
+<head>
+   <script src="script.js"></script>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=§, initial-scale=1.0">
+   <title>JS Funktioner</title>
+</head>
+
+
+<body>
+   <p id="p1">Klicka här!</p>
+   <p id="p2">Klicka här!</p>
+   <p id="p3">Klicka här!</p>
+   <p id="p4">Klicka här!</p>
+   <p id="p5">Klicka här!</p>
+</body>
+</html>
+	Anonyma- och arrow-funktioner 
+Anonyma funktioner är en funktion som skriv där den skall användas, eller anropas, i koden.
+När man skapa en händelselyssnare i JavaScript kopplar man en funktion som skall exekveras då händelsen triggas.
+
+
+<p id="p1">Clicka här!</p>
+
+
+<script>
+document.getElementById("p1").addEventListener('click', clickP);
+
+
+function clickP(e){
+  e.currentTarget.innerText = "Test";
+}
+</script>
+	
+Vanlig är att istället för att referera till en funktion så skriver man en anonym funktion direkt i händelsehanteraren. Fördelen är att koden kopplas direkt till just den händelsehanteraren. 
+
+
+<p id="p1">Clicka här!</p>
+
+
+<script>
+document.getElementById("p1").addEventListener('click', function(e){
+  e.currentTarget.innerText = "Test";
+});
+</script>
+	
+I JavaScript finns även s.k. arrow-funktioner. Dessa gör att vi kan förkorta ytterligare.
+
+
+<p id="p1">Clicka här!</p>
+
+
+<script>
+document.getElementById("p1").addEventListener('click', (e) => {
+  e.currentTarget.innerText = "Test";
+});
+</script>
+	
+Om man enbart har en parameter, (e) => { }, till arrow-funktioner så behövs inga parenteser, e => { }. Om man däremot har fler parametrar (eller inga) till funktionen så krävs parenteser.
+Repetitionssatser och arrayer 
+I JavaScripts klass Array finns det en komprimerade varianter av foreEach. Metoden map i klassen Array loopar även den igenom en array men med skillnaden att den skapar en ny array. Gemensamt för bägge är att varje element skickas som parameter till en bestämd funktion.
+Map används mycket i ramverk/bibliotek som React.        
+forEach och map tillsammans
+Bägge metoderna tar som parameter en funktion som körs för varje position i arrayen. Skillnaden är att funktionen kopplad till map måste returnera då en ny array skapas.
+
+
+Exemplet nedan visar hur vi bygger upp en ul-lista med olika namn som ligger i en array.
+test.html
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Funktioner i JS</title>
+</head>
+<body>
+<!-- "ul" där vi med JS lägger till 5 namn placerade i "li" -->
+<ul>
+
+
+</ul>
+</body>
+<script>
+   let nameArr = ['Henrik', 'Eva', 'Jan', 'Lisa', 'René'];
+
+
+   // ------------ MAP ------------
+   let liArr = nameArr.map(name => {
+       let li = document.createElement('li');
+       li.textContent= name;
+       return li;
+   })
+
+
+   let ulFragment = document.createDocumentFragment();
+
+
+   // ------------ FOR-EACH ------------
+   liArr.forEach(li => ulFragment.appendChild(li));
+ 
+   let ul = document.querySelector('ul');
+   ul.appendChild(ulFragment);
+</script>
+</html>
+	
+
+________________
+JSON (JavaScript Object Notation)
+JSON är format för att strukturera data och datautbyte och är "de facto" standard för webbutvecklare och programmerare eftersom den är kompakt att använda vid datautbyte. Och speciellt med JavaScript.
+JSON är det format som JavaScript lagrar sina objekt.
+Struktur och enkla json-objekt
+Vi kommer att fokusera på JSON eftersom det idag är det vanligaste formatet vid datautbyte. Vid ett API- anrop är det vanligt att resultatet levereras i json-format.
+Därför är det viktigt att kunna hanter json med JavaScript.
+Ett JSON-objekt skrivs mellan två klamrar ”{ }”.
+I JSON struktureras objektets data med en tillhörande nyckel. Varje nyckel - data separeras med  ett komma.
+{"nyckel": "värde"}
+	
+
+Självklart kan ett objekt innehålla flera värden. Dessa separeras då med ett kommatecken.
+{"nyckel_1": "värde_1", "nyckel_2": "värde_2", "nyckel_3": "värde_3"}
+	
+
+Samma som ovan men med ett verkligt innehåll.
+{"id": 1,"namn":"Henrik Bygren","telefon":"234 23"}
+	
+
+För att konvertera en json-sträng till ett json-objekt i JavaScript skriver man
+
+
+let jsonObj = JSON.parse('{"id": 1,"namn":"Henrik Bygren","telefon":"234 23"}');
+	
+
+För att komma åt de olika värdena i objektet
+jsonObj.id
+jsonObj.namn
+jsonObj.telefon
+	
+
+Exempel 1
+Nedan visar ett praktiskt exempel på hur vi kan läsa in ett json-objekt och skriva ut innehållet.
+<!DOCTYPE html>  
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+   <title>JSON</title>
+</head>
+<body>
+<script>
+   let jsonObj = JSON.parse('{"id": 1,"namn":"Henrik Bygren","telefon":"234 23"}');
+   document.write(jsonObj.id);
+   document.write('<br>');
+   document.write(jsonObj.namn);
+   document.write('<br>');
+   document.write(jsonObj.telefon);
+</script>
+</body>
+</html>
+	
+
+JSON-array
+Ofta kommer json i form av en array av json-objekt. En sådan array kan se ut som nedan
+[{"id":1,"namn":"Henrik Bygren","telefon":"234 23"},
+ {"id":2,"namn":"Mia Larsson","telefon":"233 22"},
+ {"id":3,"namn":"Karl Johansson","telefon":"322 33"}]
+	
+
+Arrayen innesluts mellan [ och ]. Varje json-objekt separeras med ett komma-tecken.
+Koden nedan visar hur vi läser in en json-array.
+let jsonObj = JSON.parse('[{"id":1,"namn":"Henrik Bygren","telefon":"234 23"},{"id":2,"namn":"Mia Larsson","telefon":"233 22"},{"id":3,"namn":"Karl Johansson","telefon":"322 33"}]');
+	
+
+Fört att komma åt det tredje objektet med index "namn" skriver man 
+jsonObj[2].namn;
+	
+
+Exempel 2
+Praktiskt exempel som kan testköras i webbläsaren
+<!DOCTYPE html>  
+<html lang="sv">
+<head>
+   <meta charset="UTF-8">
+   <title>JSON - Array</title>
+</head>
+<body>
+<script>
+   let jsonObj = JSON.parse('[{"id":1,"namn":"Henrik Bygren","telefon":"234 23"},{"id":2,"namn":"Mia Larsson","telefon":"233 22"},{"id":3,"namn":"Karl Johansson","telefon":"322 33"}]');
+   for(let i = 0; i < jsonObj.length; i++){
+       document.write(jsonObj[i].id);
+       document.write('<br>');
+       document.write(jsonObj[i].namn);
+       document.write('<br>');
+       document.write(jsonObj[i].telefon);
+       document.write('<hr>');
+   }
+</script>
+</body>
+</html>
+	
+
+Nästlade JSON-objekt
+Många gånger när man anropar ett API får man tillbaka ett json-objekt som vid första anblicken har en komplicerad struktur. Detta beroende på att det kan finnas objekt i objekt som i sin tur består av arrayer.
+Nedan visas ett exempel på en mer sammansatt struktur. Jag har valt att själv skapa indrag från originalfilen för att få en enklare och mer läsbar struktur.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[
+   {
+       "pid":2,
+       "uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9",
+       "post_txt":"Hej node","date":"2022-10-21 06:23:20",
+       "firstname":"Henrik",
+       "surname":"Bygren",
+       "comments": [
+           {
+               "comment_txt":"Funkar",
+               "date":"2022-10-21 06:26:08",
+               "uid":"caada3ed-da9d-4c31-a655-5dd1ee1e47e9",
+               "firstname":"Lisa",
+               "surname":"Johansson"
+           },
+           {
+               "comment_txt":"Kul att det fungerar även för dig",
+               "date":"2022-10-18 03:01:15",
+               "uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9",
+               "firstname":"Henrik",
+               "surname":"Bygren"
+           }
+       ]
+   },
+   {
+       "pid":7,
+       "uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9",
+       "post_txt":"I kväll skall jag på fest!",
+       "date":"2022-10-18 02:50:22",
+       "firstname":"Henrik",
+       "surname":"Bygren",
+       "comments": [
+           {
+               "comment_txt":"Intressant!",
+               "date":"2022-10-18 03:01:15",
+               "uid":"caada3ed-da9d-4c31-a655-5dd1ee1e47e9",
+               "firstname":"Lisa",
+               "surname":"Johansson"
+           }
+       ]
+    }
+]
+	
+
+Exemplet ovan visar resultatet av ett API-anrop från databasen EgyTalk som vi arbetar med i Webbserverkursen. Objektet eller rättare sagt arrayen med objekt innehåller alla postade inlägg av användaren "Henrik Bygren" med tillhörande kommentarer.
+Arrayen består av två poster (på position 0 och 1 i arrayen). Varje post har i sin tur en array med tillhörande kommentarer, comments.
+För att skriva ut alla poster med tillhörande kommentarer. JSON-datan ovan är komprimerad och variabeln posts i koden nedan refererar till den.
+<!DOCTYPE html>  
+<html lang="sv">
+<head>  
+   <meta charset="UTF-8">
+   <title>Poster i json-format</title>
+</head>
+<body>
+   <script>
+          let posts = JSON.parse
+('[{"pid":2,"uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9","post_txt":"Hej node","date":"2022-10-21 06:23:20","firstname":"Henrik","surname":"Bygren","comments": [{"comment_txt":"Funkar","date":"2022-10-21 06:26:08","uid":"caada3ed-da9d-4c31-a655-5dd1ee1e47e9","firstname":"Lisa","surname":"Johansson"},{"comment_txt":"Kul att det fungerar även för dig","date":"2022-10-18 03:01:15","uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9","firstname":"Henrik","surname":"Bygren"}]},{"pid":7,"uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9","post_txt":"I kväll skall jag på fest!","date":"2022-10-18 02:50:22","firstname":"Henrik","surname":"Bygren","comments": [{"comment_txt":"Intressant!","date":"2022-10-18 03:01:15","uid":"caada3ed-da9d-4c31-a655-5dd1ee1e47e9","firstname":"Lisa","surname":"Johansson"}]}]');
+
+
+          for (let i = 0; i < posts.length; i++) {
+             document.write("namn: " + posts[i].firstname + " " + posts[i].surname);
+             document.write('<br>');
+             document.write("datum: " + posts[i].date);
+             document.write('<br>');
+             document.write('---- TEXT ----<br>');
+             document.write("post: " + posts[i].post_txt) + "<br>";
+
+
+             // Skriver ut kommentarer
+             if (posts[i].comments.length != 0) {
+                document.write('<br>-- KOMMENTARER --');
+             }
+             
+             for (let j = 0; j < posts[i].comments.length; j++) {
+                document.write("<br>Kommentar: " + 
+                              posts[i].comments[j].comment_txt + "<br>");
+                document.write("Av: " + posts[i].comments[j].firstname + " " + 
+                              posts[i].comments[j].surname);
+
+
+             }
+             document.write('<hr>');
+          }
+   </script>
+</body>
+</html>
+	
+
+Kopiera och klistra in i din IDE för bättre formatering och läsbarhet.
+For-looparna kan skrivas mer sofistikerat enligt nedan.
+
+posts.forEach(post => {
+   document.write("namn: " + post.firstname + " " + post.surname);
+   document.write('<br>');
+   document.write("datum: " + post.date);
+   document.write('<br>');
+   document.write('---- TEXT ----<br>');
+   document.write("post: " + post.post_txt) + "<br>";
+
+
+   if (post.comments.length != 0) {
+            document.write('<br>-- KOMMENTARER --');
+   }
+
+
+   post.comments.forEach(comment => {
+            document.write("<br>Kommentar: " + comment.comment_txt + "<br>");
+            document.write("Av: " + comment.firstname + " " + comment.surname)
+   });
+   document.write('<hr>');
+});
+	
+
+Fetch 
+Nästa steg blir att istället läsa in data som ovan fast från ett API.
+I JavaScript kommunicerar man med API:er med fetch. Anrop av ett API kan ske med metoderna get, post, put och delete. Default är get-metoden.
+Promises, async och await
+Promise är en klass i JavaScript vars instans utför asynkrona operationer och returnerar ett resultat eller ett fel (error). Vid ett synkront anrop, stannar programmet och inväntar resultatet från anropet, vilket kan ta tid och applikationen kan upplevas ”hänga sig”. Detta brukar kallas Blocking. Vid ett asynkront anrop fortsätter programmet exekvera kod utan att ”vänta på” resultatet. När väl resultatet kommer så hanteras det av en callback-funktion. På så sätt upplever man inte att programmet ”hänger” sig, Non Blocking. 
+
+  
+
+Fetch är ett s.k promise. Vi fördjupar oss inte i promises utan tittar på hur vi hanterar dessa. Enklast är att använda await före ett fetch-anrop. Då väntar programmet på resultatet från fetch utan att gå vidare och exekvera kod. Problemet är att när man använder await måste det ligga i en async function. Förenklat kan det se ut som nedan.
+
+
+async function fetchPosts() {
+   const url = "api/getposts.php?";
+   const response = await fetch(url);
+}
+
+
+fetchPosts(); // kör anropet av API:et
+	
+
+Tyvärr kommer inte resultatet direkt från fetch utan man måste hämta det med ytterligare ett asynkront anrop som även detta är ett s.k. promise. 
+
+
+async function fetchPosts() {
+   const url = "api/getposts.php?";
+
+
+   const response = await fetch(url);
+   const posts = await response.json();
+}
+
+
+fetchPosts(); // kör anropet av API:et
+	
+
+Dock fungerar inte koden då vi ännu inte har något API färdigt.
+Back-End, API
+För att visa praktiskt hur fetch fungerar skapar vi först ett mycket enkelt API m.h.a. PHP. API:et skall enbart returnera samma data som föregående skript. D.v.s postade inlägg med kommentarer. I ett riktigt API skulle vi först hämta datan från en databas, men nu förenklar vi för att kunna testa hur fetch fungerar.
+Skapa underkatalogen api och filen getposts.php där i med nedanstående kod.
+  
+<?php
+$posts = '[{"pid":2,"uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9","post_txt":"Hej node","date":"2022-10-21 06:23:20","firstname":"Henrik","surname":"Bygren","comments": [{"comment_txt":"Funkar","date":"2022-10-21 06:26:08","uid":"caada3ed-da9d-4c31-a655-5dd1ee1e47e9","firstname":"Lisa","surname":"Johansson"},{"comment_txt":"Kul att det fungerar även för dig","date":"2022-10-18 03:01:15","uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9","firstname":"Henrik","surname":"Bygren"}]},{"pid":7,"uid":"faffa3ed-da9d-4c31-a655-5dd1ee1e47e9","post_txt":"I kväll skall jag på fest!","date":"2022-10-18 02:50:22","firstname":"Henrik","surname":"Bygren","comments": [{"comment_txt":"Intressant!","date":"2022-10-18 03:01:15","uid":"caada3ed-da9d-4c31-a655-5dd1ee1e47e9","firstname":"Lisa","surname":"Johansson"}]}]';
+header("Access-Control-Allow-Origin: *");
+header('Content-Type: application/json');
+echo $posts;
+	
+
+Front-End med fetch
+Först själva sidan där resultatet så småningom skall visas. JavaScript:en kommer vara i en separat fil som skapas här efter.
+index.html  
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+        <meta charset="UTF-8">
+        <title>API</title>
+        <script src="js/script.js"></script>
+</head>
+<body>
+        <h1>Posts</h1>
+        <main>
+            <section id ="posts"><!-- Innehåll --></section>
+        </main>
+</body>
+</html>
+	
+
+Första JavaScript-filen kommer endast skriva ut datan från API:et i konsolen. Detta för att enklare se och förstå tekniken. Öppna konsolen i webbläsaren för att se resultatet.
+js/script.js (1)  
+function init() {
+  getPosts();
+}
+
+
+async function getPosts() {
+        const response = await fetch("../api/getposts.php");
+        const posts = await response.json();
+        
+        posts.forEach(post => {
+                console.log("Namn: " + post.firstname + " " +post.surname);
+                console.log("-- TEXT --");
+                console.log("post: " + post.post_txt);
+
+
+                if(post.comments.length != 0){
+               console.log('-- KOMMENTARER --');
+                }
+                post.comments.forEach(comment => {
+              console.log("Kommentar: " + comment.comment_txt);
+              console.log("Av: " + comment.firstname + " " + comment.surname);
+                });
+        });
+}
+
+
+window.addEventListener("load", init);
+	
+
+Här kommer JavaScripten bygga upp synliga objekt på webbsidan. Detta är inte helt enkelt. Jag visar detta mest för att förstå varför man nästan uteslutande använder ramverk som SvelteKit, React, Angular eller Vue vid front-end-utveckling. Efter koden i ren JavaScript visar jag hur det skulle se ut i SvelteKit. 
+Kopiera koden och testa!
+js/script.js (2)  
+function init() {
+  getPosts();
+}
+
+
+async function getPosts() {
+        const response = await fetch("../api/getposts.php");
+        const posts = await response.json();
+            
+        createPosts(posts);
+}
+
+
+function createPosts(posts) {
+        let section = document.getElementById("posts");
+        let content = new DocumentFragment();
+ 
+        posts.forEach((post) => {
+            let articlePost = document.createElement("article");
+            articlePost.classList.add("post");
+ 
+            let pName = document.createElement("p");
+            pName.textContent = "Namn: " + post.firstname + " " + post.surname;
+            articlePost.appendChild(pName);
+ 
+            let pPostTxt = document.createElement("p");
+            pPostTxt.textContent = post.post_txt;
+            articlePost.appendChild(pPostTxt);
+
+
+            content.appendChild(articlePost);
+            
+            let articleComment, div;
+ 
+            if (post.comments.length != 0) {
+                div = document.createElement('div');
+ 
+                articleComment = document.createElement('article');
+                articleComment.classList.add('comment');
+ 
+                let commentsH3 = document.createElement("h3");
+                commentsH3.textContent = "Kommentarer";
+ 
+                div.appendChild(commentsH3);
+            }
+            post.comments.forEach((comment) => {
+                let pCommentTxt = document.createElement("p");
+                pCommentTxt.textContent = comment.comment_txt;
+                articleComment.appendChild(pCommentTxt);
+ 
+                let pCommentName = document.createElement("p");
+                pCommentName.textContent = "Namn: " + comment.firstname + " " + 
+                   comment.surname;
+                articleComment.appendChild(pCommentName);
+                div.appendChild(articleComment);
+            });
+
+
+            content.appendChild(div);
+            content.appendChild(document.createElement("hr"));
+        });
+
+
+        section.appendChild(content);
+}
+window.addEventListener("load", init);
+	
+
+I SvelteKit hade det sett ut som nedan. Här är HTML och JavaScript i en och samma fil. Betydlig enklare, kompaktare och mer strukturerat. SvelteKit skapar vid kompilering kod liknande den ovan.
+<script>
+        import { onMount } from "svelte";
+
+
+        let loadData = { done: false };
+        let posts = [];
+        
+        onMount(getPosts);
+        
+        async function getPosts() {
+          loadData.done = false;
+          const url = "http://localhost/api/getposts.php";
+
+
+          let response = await fetch(url);
+          posts = await response.json();
+
+
+          loadData.done = true;
+        }
+</script>
+<section>
+   {#if loadData.done}
+            {#each posts as post}
+          <article class="post">
+              <h3>{post.firstname + " " + post.surname + ", " + post.date}</h3>
+              <p>{post.post_txt}</p>
+           </article>
+           <div>
+                {#each post.comments as comment}        
+                       <article class="comment">
+                        <h4> 
+                      {comment.firstname + " " + comment.surname + ", " 
+                       + comment.date}
+                    </h4>
+                    <p>{comment.comment_txt}</p>
+                       </article>
+                {/each}
+           </div>
+           <hr />
+            {/each}
+   {/if}
+</section>
+	
+
+fetch med metoden post
+För att skicka data med metoden post till ett API, så skall metoden och formulär-datan anges i en parameter i form av ett objekt, till fetch().
+
+const response = await fetch(url, {
+   method: "post", 
+  body: data  // formulär-datan 
+});
+	
+Datan från formuläret lagras i en instans av JavaScripts FormData-klass.
+
+const data = new FormData();
+	
+Exemplet nedan visar hur det fungerar. Sidan anropar ett api som endast returnerar {"success": false} eller {"success": true}. Nycklarna som API:et tar emot och bearbetar är user och pwd. Om user = admin och pwd = 12345 så blir resultatet true.
+
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Auth Check</title>
+</head>
+<body>
+        <form method="post" id="authform">
+            <label for="user">Användarnamn</label>
+            <input type="text" name="user">
+
+
+            <label for="pwd"></label>
+            <input type="password" name="pwd">
+
+
+            <input type="submit" value="Check">
+        </form>
+</body>
+<script>
+        const form = document.getElementById('authform');
+
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+
+            const user = document.getElementsByName('user')[0].value;
+            const pwd =  document.getElementsByName('pwd')[0].value;
+            
+            auth(user, pwd);
+        });
+
+
+        async function auth(user, pwd){
+            const data = new FormData();
+            data.append("user", user);
+            data.append("pwd", pwd);
+
+
+            const url = "https://data.egyweb.se/api/auth.php";
+
+
+            const response = await fetch(url, {
+           method: "post", 
+          body: data
+       });
+            const check = await response.json();
+
+
+            console.log(check.success);
+        }
+</script>
+</html>
+	
+
+Raderna med formData kan skrivas mer effektivt
+    const formData = new FormData();
+    formData.append("user", user);
+    formData.append("pwd", pwd);
+
+
+    const data = new FormData(form);
+	
+
+Om man skall använda sessioner och cookies, vilket är vanligt vid inloggning, skall man ange ytterligare ett direktiv.
+            const response = await fetch(url, {
+           method: "post", 
+          body: data,
+           credentials: 'include'
+       });
+	
+
+Moduler, export och import
+I JavaScript använder man s.k. moduler för att bryta ner kod i olika filer. Moduler importeras från externa filer med nyckelordet import och exporteras med export.
+Moduler kan exporteras på två olika sätt. Med eller utan namn. Vid export av namngivna moduler kan flera moduler exporteras från en och samma fil. Icke namngivna moduler kan bara finnas i en fil per modul.
+Namngiven export och import
+
+data.js
+export let data = [3, 4, 5, 6];
+
+
+export function max(arr){
+   let max = arr[0];
+
+
+   for(let i = 1; i < arr.length; i++){
+      if(max < arr[i])
+         max = arr[i];
+   }
+   return max;
+}
+	
+
+Import av modulerna ovan (ligger i samma katalog)
+
+import {data, max} from './data.js';
+	
+
+Namnen måste överensstämma i båda filerna.
+Icke namngiven export och import
+Exporteras med nyckelordet default efter export.
+
+
+data.js
+export default function max(arr){
+   let max = arr[0];
+
+
+   for(let i = 1; i < arr.length; i++){
+      if(max < arr[i])
+         max = arr[i];
+   }
+   return max;
+}
+	
+Funktionen som exporteras kan vara anonym.
+
+export default function(arr){
+ . . .
+}
+	
+
+Importen kan ske med valfritt namn på funktionen som importeras.
+
+import maximun from './data.js';
+	
+
+Här behövs inte klamrar runt namnet man importerar funktionen till. 
+Om man skall använda import skall script-taggen använda attributet type="module".
+
+<script src="./data.js" type="module"></script>

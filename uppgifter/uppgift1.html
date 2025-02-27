@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+
+<body>
+    <div id="names-container">
+
+    </div>
+
+</body>
+
+</html>
+
+
+<script>
+    const names = ["Emrik", "Johan", "Horunge1", "Horunge2", "Horunge3"]
+    const container = document.getElementById("names-container");
+
+    names.forEach(name => {
+        const paragraph = document.createElement("p");
+
+        paragraph.textContent = name;
+
+        container.appendChild(paragraph);
+    })
+</script>
